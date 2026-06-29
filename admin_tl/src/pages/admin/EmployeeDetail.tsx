@@ -7,6 +7,8 @@ import Spinner from "@/components/ui/Spinner"
 import { type Employee } from "@/data/employees"
 import { employeeService } from "@/services/employeeService"
 import { AlertCircle } from 'lucide-react'
+import { useAuth } from "@/context/AuthContext"
+import { toast } from "@/components/ui/Toast"
 
 export default function AdminEmployeeDetail() {
   const { id } = useParams()
@@ -14,6 +16,30 @@ export default function AdminEmployeeDetail() {
   const [emp, setEmp] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [toggling, setToggling] = useState(false)
+  const { user } = useAuth()
+
+  const isSuperAdmin = user?.dbRole === 'SUPER_ADMIN'
+
+  const handleAccessToggle = async () => {
+    if (!isSuperAdmin) {
+      toast({ message: 'Only Super Admins can toggle system access.', type: 'error' });
+      return;
+    }
+    if (!emp) return;
+    const nextActive = !emp.isActive;
+    try {
+      setToggling(true);
+      await employeeService.toggleEmployeeAccess(String(emp.id), nextActive);
+      setEmp((prev: any) => ({ ...prev, isActive: nextActive, status: nextActive ? 'ACTIVE' : 'INACTIVE' }));
+      toast({ message: `Employee access ${nextActive ? 'enabled' : 'disabled'} successfully`, type: 'success' });
+    } catch (err: any) {
+      console.error('Error toggling employee access:', err);
+      toast({ message: err.message || 'Failed to toggle employee access', type: 'error' });
+    } finally {
+      setToggling(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return
@@ -78,8 +104,14 @@ export default function AdminEmployeeDetail() {
           <div className="flex items-center gap-4">
             <div className="text-sm text-ink-muted mr-2">Status Toggle</div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" checked={emp.status === 'ACTIVE'} readOnly className="sr-only peer" />
-              <div className="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-emerald-400 peer-focus:ring-2 peer-focus:ring-amber-300"></div>
+              <input 
+                type="checkbox" 
+                checked={emp.isActive ?? (emp.status === 'ACTIVE')} 
+                onChange={handleAccessToggle}
+                disabled={!isSuperAdmin || toggling}
+                className="sr-only peer" 
+              />
+              <div className="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-emerald-400 peer-focus:ring-2 peer-focus:ring-amber-300 peer-disabled:opacity-50"></div>
             </label>
           </div>
         </div>

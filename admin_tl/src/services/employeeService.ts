@@ -84,5 +84,8 @@ export const employeeService = {
   },
   deactivateEmployee: async (id: string): Promise<void> => {
     return apiClient.delete(`${getPrefix()}/employees/${id}`);
+  },
+  toggleEmployeeAccess: async (id: string, isActive: boolean): Promise<any> => {
+    return apiClient.put(`/admin/employees/${id}/access`, { isActive });
   }
 };

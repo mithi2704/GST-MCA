@@ -41,5 +41,13 @@ export const incentiveService = {
 
   setFreezeStatus: async (month: string, isFrozen: boolean): Promise<FreezeStatus> => {
     return apiClient.post('/admin/incentives/freeze', { month, isFrozen });
+  },
+
+  getTLIncentives: async (): Promise<any> => {
+    return apiClient.get('/teamlead/incentives');
+  },
+
+  calculateTLIncentives: async (month: string): Promise<any> => {
+    return apiClient.post('/teamlead/incentives/calculate', { month });
   }
 };

@@ -7,6 +7,7 @@ interface SessionUser {
   email: string
   avatar: string | null
   token?: string
+  dbRole?: string
 }
 
 interface AuthContextValue {
@@ -49,6 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email: response.user?.email || response.email || email,
       avatar: response.user?.avatar || response.avatar || null,
       token: response.token,
+      dbRole: rawRole,
     }
     
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(sessionUser))
