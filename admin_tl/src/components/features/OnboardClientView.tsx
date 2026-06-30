@@ -203,16 +203,7 @@ export function OnboardClientView({ basePath }: { basePath: string }) {
                 })}
               </div>
 
-              <div className="mt-4 rounded-lg bg-amber-soft p-4">
-                <p className="flex items-center gap-1.5 text-sm font-bold text-gold-dark">
-                  <Info className="h-4 w-4" /> Billing Estimation
-                </p>
-                <p className="mt-1 text-xs text-gold-dark">Estimated monthly recurring revenue for this scope:</p>
-                <p className="mt-1 text-xl font-extrabold text-ink">
-                  ₹{(selectedServices.length * 4500).toLocaleString("en-IN")}.00
-                  <span className="text-sm font-medium text-ink-soft"> /mo</span>
-                </p>
-              </div>
+
             </Card>
           </div>
 
