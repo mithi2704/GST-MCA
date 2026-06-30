@@ -243,8 +243,10 @@ export function ClientsView({
                           <td className="px-6 py-4 relative">
                             <div className="flex items-center justify-end">
                               <button
-                                ref={kebabRef}
-                                onClick={() => setPopoverFor((p) => (p === client.id ? null : client.id))}
+                                onClick={(e) => {
+                                  kebabRef.current = e.currentTarget
+                                  setPopoverFor((p) => (p === client.id ? null : client.id))
+                                }}
                                 className="flex h-8 w-8 items-center justify-center rounded-md text-ink-soft hover:bg-line-soft"
                                 aria-label="More"
                               >

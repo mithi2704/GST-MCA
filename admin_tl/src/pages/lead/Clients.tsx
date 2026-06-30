@@ -360,15 +360,7 @@ export default function LeadClients() {
 
             {/* Clients Table */}
             <div className="overflow-x-auto px-6 pb-6">
-              <table className="w-full table-fixed" style={{ tableLayout: 'fixed' }}>
-                <colgroup>
-                  <col style={{ width: '38%' }} />
-                  <col style={{ width: '18%' }} />
-                  <col style={{ width: '22%' }} />
-                  <col style={{ width: '22%' }} />
-                  <col style={{ width: '12%' }} />
-                  <col style={{ width: '8%' }} />
-                </colgroup>
+              <table className="w-full">
                 <thead>
                   <tr className="border-y border-line text-left text-xs font-semibold uppercase tracking-wide" style={{ backgroundColor: 'var(--color-line-soft)', color: 'var(--color-ink-soft)' }}>
                     <th onClick={() => { setSortKey('company'); setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); setPage(1) }} className="px-6 py-4 cursor-pointer">Company Name</th>
@@ -409,12 +401,23 @@ export default function LeadClients() {
                       <td className="px-6 py-4 relative" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end">
                           <button
-                            ref={kebabRef}
-                            onClick={() => setPopoverOpenFor((p) => (p === client.id ? null : client.id))}
+                            onClick={(e) => {
+                              kebabRef.current = e.currentTarget
+                              setPopoverOpenFor((p) => (p === client.id ? null : client.id))
+                            }}
                             className="flex h-8 w-8 items-center justify-center rounded-md text-ink-soft hover:bg-line-soft"
                           >
                             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
                           </button>
+                          {popoverOpenFor === client.id && (
+                            <RowActionsPopover
+                              open={true}
+                              anchorRef={kebabRef}
+                              onClose={() => setPopoverOpenFor(null)}
+                              onEdit={() => { setPopoverOpenFor(null); setEditing(client) }}
+                              onView={() => navigate(`/lead/clients/${client.id}`)}
+                            />
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -422,22 +425,6 @@ export default function LeadClients() {
                 </tbody>
               </table>
             </div>
-
-            {popoverOpenFor && (
-              (() => {
-                const client = clientsList.find((c) => c.id === popoverOpenFor)
-                if (!client) return null
-                return (
-                  <RowActionsPopover
-                    open={true}
-                    anchorRef={kebabRef}
-                    onClose={() => setPopoverOpenFor(null)}
-                    onEdit={() => { setPopoverOpenFor(null); setEditing(client) }}
-                    onView={() => navigate(`/lead/clients/${client.id}`)}
-                  />
-                )
-              })()
-            )}
 
             {/* Pagination */}
             <div className="px-6 pb-6 border-t border-line pt-4">

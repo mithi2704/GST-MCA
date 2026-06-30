@@ -45,7 +45,12 @@ export function EditClientModal({
             </div>
             <div>
               <label className="text-xs font-semibold text-ink-muted">Contact Mobile</label>
-              <input value={form.contactMobile} onChange={(e) => update('contactMobile', e.target.value)} className="mt-1 h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm text-ink" />
+              <input
+                value={form.contactMobile}
+                onChange={(e) => update('contactMobile', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                className="mt-1 h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm text-ink"
+                placeholder="e.g. 9876543210"
+              />
             </div>
             <div>
               <label className="text-xs font-semibold text-ink-muted">Assigned TL</label>
@@ -63,7 +68,24 @@ export function EditClientModal({
 
           <div className="mt-6 flex justify-end gap-2">
             <Button variant="ghost" onClick={onClose}>Cancel</Button>
-            <Button variant="primary" onClick={() => { onSave(form); onClose(); }}>Save</Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                if (!form.contactEmail || !emailRegex.test(form.contactEmail)) {
+                  alert("Please enter a valid email address")
+                  return
+                }
+                if (!form.contactMobile || !/^\d{10}$/.test(form.contactMobile)) {
+                  alert("Phone number must be exactly 10 digits")
+                  return
+                }
+                onSave(form)
+                onClose()
+              }}
+            >
+              Save
+            </Button>
           </div>
         </div>
       </Card>

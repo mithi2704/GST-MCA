@@ -55,8 +55,9 @@ export function EditEmployeeModal({
               <label className="text-xs font-semibold text-ink-muted">Mobile</label>
               <input
                 value={form.mobile}
-                onChange={(e) => update('mobile', e.target.value)}
+                onChange={(e) => update('mobile', e.target.value.replace(/\D/g, '').slice(0, 10))}
                 className="mt-1 h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm text-ink"
+                placeholder="e.g. 9876543210"
               />
             </div>
 
@@ -103,9 +104,18 @@ export function EditEmployeeModal({
 
           <div className="mt-6 flex justify-end gap-2">
             <Button variant="ghost" onClick={onClose}>Cancel</Button>
-            <Button
+             <Button
               variant="primary"
               onClick={() => {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                if (!form.email || !emailRegex.test(form.email)) {
+                  alert("Please enter a valid email address")
+                  return
+                }
+                if (!form.mobile || !/^\d{10}$/.test(form.mobile)) {
+                  alert("Phone number must be exactly 10 digits")
+                  return
+                }
                 onSave(form)
                 onClose()
               }}

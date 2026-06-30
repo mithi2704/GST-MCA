@@ -53,7 +53,14 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _error = e.toString().replaceAll('HttpException: ', '');
+      final errMsg = e.toString().replaceAll('HttpException: ', '');
+      if (errMsg == 'Invalid credentials' ||
+          errMsg.toLowerCase().contains('credentials') ||
+          errMsg.toLowerCase().contains('unauthorized')) {
+        _error = 'wrong password or incorrect email id';
+      } else {
+        _error = errMsg;
+      }
       _isLoading = false;
       _currentUser = null;
       notifyListeners();

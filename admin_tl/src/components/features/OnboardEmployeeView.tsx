@@ -67,8 +67,22 @@ export function OnboardEmployeeView() {
     if (!draft.department) missing.push('Department')
     if (!draft.designation) missing.push('Designation')
     if (!draft.joiningDate) missing.push('Joining Date')
-    // role removed from this flow
+    if (!draft.phone) missing.push('Phone')
     if (missing.length) { alert('Please provide: ' + missing.join(', ')); return false }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (officialEmail && !emailRegex.test(officialEmail)) {
+      alert('Please enter a valid official email address')
+      return false
+    }
+    if (draft.personalEmail && !emailRegex.test(draft.personalEmail)) {
+      alert('Please enter a valid personal email address')
+      return false
+    }
+    if (!/^\d{10}$/.test(draft.phone)) {
+      alert('Phone number must be exactly 10 digits')
+      return false
+    }
     return true
   }
 
@@ -182,7 +196,12 @@ export function OnboardEmployeeView() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="text-xs font-semibold text-ink-muted">Phone</label>
-                  <input value={draft.phone || ''} onChange={(e) => update('phone', e.target.value)} className="mt-1 h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm text-ink" />
+                  <input
+                    value={draft.phone || ''}
+                    onChange={(e) => update('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    className="mt-1 h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm text-ink"
+                    placeholder="e.g. 9876543210"
+                  />
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-ink-muted">Date of Birth</label>

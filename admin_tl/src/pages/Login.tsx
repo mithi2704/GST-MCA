@@ -28,7 +28,12 @@ export default function Login() {
       }
       navigate(dest, { replace: true })
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed")
+      let errMsg = err instanceof Error ? err.message : "Login failed"
+      if (errMsg === "Invalid credentials" || errMsg.toLowerCase().includes("credentials")) {
+        errMsg = "wrong password or incorrect email id"
+      }
+      setError(errMsg)
+      alert(errMsg)
     } finally {
       setLoading(false)
     }

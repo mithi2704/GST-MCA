@@ -34,19 +34,50 @@ export function OnboardClientView({ basePath }: { basePath: string }) {
   const [selectedServices, setSelectedServices] = useState<string[]>(["gst"])
   const [company, setCompany] = useState("")
   const [contactPerson, setContactPerson] = useState("")
-  const contactEmail = ""
+  const [contactEmail, setContactEmail] = useState("")
+  const [contactMobile, setContactMobile] = useState("")
 
   function toggleService(id: string) {
     setSelectedServices((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
   }
 
+  function validateStep0() {
+    if (!company.trim()) {
+      alert("Company Name is required");
+      return false;
+    }
+    if (!contactPerson.trim()) {
+      alert("Contact Person is required");
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!contactEmail.trim()) {
+      alert("Email Address is required");
+      return false;
+    }
+    if (!emailRegex.test(contactEmail)) {
+      alert("Please enter a valid email address");
+      return false;
+    }
+    if (!contactMobile.trim()) {
+      alert("Phone Number is required");
+      return false;
+    }
+    if (!/^\d{10}$/.test(contactMobile)) {
+      alert("Phone number must be exactly 10 digits");
+      return false;
+    }
+    return true;
+  }
+
   async function doSave() {
+    if (!validateStep0()) return;
     try {
       await clientService.createClient({
         company: company || `New Client ${Date.now()}`,
         contactPerson: contactPerson || 'Primary Contact',
-        contactMobile: '',
-        contactEmail: contactEmail || '',
+        contactMobile: contactMobile,
+        contactEmail: contactEmail,
         gstin: '',
         pan: '',
         address: '',
@@ -89,7 +120,7 @@ export function OnboardClientView({ basePath }: { basePath: string }) {
           <Button variant="outline" onClick={() => navigate(basePath)} className="h-9 px-3 rounded-md text-sm">
             Cancel
           </Button>
-          <Button variant="primary" onClick={() => navigate(basePath)} className="h-9 px-4 shadow-sm rounded-md text-sm">
+          <Button variant="primary" onClick={doSave} className="h-9 px-4 shadow-sm rounded-md text-sm">
             Save &amp; Add Client
           </Button>
         </div>
@@ -101,7 +132,10 @@ export function OnboardClientView({ basePath }: { basePath: string }) {
           {steps.map((label, i) => (
             <div key={label} className={cn("flex items-center", i < steps.length - 1 && "flex-1")}>
               <button
-                onClick={() => setStep(i)}
+                onClick={() => {
+                  if (step === 0 && i > 0 && !validateStep0()) return;
+                  setStep(i);
+                }}
                 className="flex items-center gap-2"
               >
                 <span
@@ -237,7 +271,7 @@ export function OnboardClientView({ basePath }: { basePath: string }) {
               <div className="space-y-3">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label="Full Name">
-                    <input className={inputCls} placeholder="e.g. John Doe" />
+                    <input value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} className={inputCls} placeholder="e.g. John Doe" />
                   </Field>
                   <Field label="Designation">
                     <input className={inputCls} placeholder="e.g. CFO / Director" />
@@ -245,10 +279,15 @@ export function OnboardClientView({ basePath }: { basePath: string }) {
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label="Email Address">
-                    <input className={inputCls} placeholder="john.doe@company.com" />
+                    <input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className={inputCls} placeholder="john.doe@company.com" />
                   </Field>
                   <Field label="Phone Number">
-                    <input className={inputCls} placeholder="+91 98765 43210" />
+                    <input
+                      value={contactMobile}
+                      onChange={(e) => setContactMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      className={inputCls}
+                      placeholder="e.g. 9876543210"
+                    />
                   </Field>
                 </div>
               </div>
@@ -343,7 +382,10 @@ export function OnboardClientView({ basePath }: { basePath: string }) {
         <div className="flex items-center gap-3">
           <Button variant="outline" disabled={step === 0} onClick={() => setStep((s) => Math.max(0, s - 1))}>Back</Button>
           {step < steps.length - 1 ? (
-            <Button variant="primary" onClick={() => setStep((s) => Math.min(steps.length - 1, s + 1))}>Continue</Button>
+            <Button variant="primary" onClick={() => {
+              if (step === 0 && !validateStep0()) return;
+              setStep((s) => Math.min(steps.length - 1, s + 1));
+            }}>Continue</Button>
           ) : (
             <Button variant="primary" onClick={doSave}>Save &amp; Add Client</Button>
           )}

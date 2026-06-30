@@ -222,7 +222,21 @@ export default function EditEmployeePage() {
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-ink-muted">Phone Number <span className="text-rose-600">*</span></label>
-                    <input {...register('phone', { required: 'Phone is required' })} className="mt-1 h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm text-ink" />
+                    <input
+                      {...register('phone', {
+                        required: 'Phone is required',
+                        pattern: {
+                          value: /^\d{10}$/,
+                          message: 'Phone number must be exactly 10 digits',
+                        },
+                      })}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 10)
+                        setValue('phone', val, { shouldValidate: true })
+                      }}
+                      className="mt-1 h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm text-ink"
+                      placeholder="e.g. 9876543210"
+                    />
                     {errors.phone && <div className="text-rose-600 text-xs mt-1">{errors.phone.message}</div>}
                   </div>
                 </div>
@@ -237,7 +251,17 @@ export default function EditEmployeePage() {
                   <div>
                     <label className="text-xs font-semibold text-ink-muted">Email prefix <span className="text-rose-600">*</span></label>
                     <div className="flex items-center gap-3">
-                      <input {...register('emailLocal', { required: 'Email is required' })} className="mt-1 h-10 flex-1 rounded-lg border border-line bg-surface px-3 text-sm text-ink min-w-0" />
+                      <input
+                        {...register('emailLocal', {
+                          required: 'Email prefix is required',
+                          pattern: {
+                            value: /^[a-zA-Z0-9._-]+$/,
+                            message: 'Invalid characters in email prefix',
+                          },
+                        })}
+                        className="mt-1 h-10 flex-1 rounded-lg border border-line bg-surface px-3 text-sm text-ink min-w-0"
+                        placeholder="e.g. john.doe"
+                      />
                       <span className="text-sm text-ink-muted">@complianceos.com</span>
                     </div>
                     {errors.emailLocal && <div className="text-rose-600 text-xs mt-1">{errors.emailLocal.message}</div>}

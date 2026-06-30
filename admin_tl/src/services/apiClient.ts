@@ -1,5 +1,7 @@
-/// <reference types="vite/client" />
+  /// <reference types="vite/client" />
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://team-management-intern-s-pzly.vercel.app/api';
+//const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+
 const STORAGE_KEY = 'teamlead_session';
 
 interface RequestOptions extends RequestInit {
@@ -57,7 +59,7 @@ async function request(endpoint: string, options: RequestOptions = {}) {
   try {
     const response = await fetch(url, config);
     
-    if (response.status === 401) {
+    if (response.status === 401 && !endpoint.includes('/auth/login')) {
       sessionStorage.removeItem(STORAGE_KEY);
       // Trigger a redirect to login if we have a window session
       if (typeof window !== 'undefined') {
@@ -70,8 +72,12 @@ async function request(endpoint: string, options: RequestOptions = {}) {
       let errorMessage = `HTTP error ${response.status}`;
       try {
         const body = await response.json();
-        if (body && body.message) {
-          errorMessage = body.message;
+        if (body) {
+          if (body.message) {
+            errorMessage = body.message;
+          } else if (body.error && body.error.message) {
+            errorMessage = body.error.message;
+          }
         }
       } catch (_) {}
       throw new ApiError(errorMessage, response.status);
